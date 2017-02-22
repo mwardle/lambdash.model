@@ -1,0 +1,24 @@
+{
+  "name": "lambdash.model",
+  "version": "1.0.0",
+  "description": "Models built on lambdash",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwardle/lambdash.model.git"
+  },
+  "keywords": [
+    "models",
+    "schema",
+    "functional"
+  ],
+  "author": "Mark Wardle <mwwardle@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mwardle/lambdash.model/issues"
+  },
+  "homepage": "https://github.com/mwardle/lambdash.model#readme"
+}
