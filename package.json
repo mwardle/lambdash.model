@@ -4,7 +4,8 @@
   "description": "Models built on lambdash",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/*"
+    "test": "mocha test/*",
+    "coverage": "node_modules/.bin/istanbul cover _mocha test/* && open coverage/lcov-report/*.html"
   },
   "repository": {
     "type": "git",
@@ -20,5 +21,14 @@
   "bugs": {
     "url": "https://github.com/mwardle/lambdash.model/issues"
   },
-  "homepage": "https://github.com/mwardle/lambdash.model#readme"
+  "homepage": "https://github.com/mwardle/lambdash.model#readme",
+  "dependencies": {
+    "lambdash": "^0.7.0-alpha.2",
+    "lambdash.either": "^0.7.0-alpha.2",
+    "lambdash.maybe": "^0.7.0-alpha.2"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0"
+  }
 }
