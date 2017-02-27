@@ -1,91 +1,103 @@
-var _ = require('lambdash');
-var Schema = require('../src/Schema');
+const expect = require('expect');
 
-var assert = require('assert');
+const _ = require('lambdash');
 
-var assertEqual = function(left, right){
-    if (!_.eq(left,right)){
-        assert.fail(left, right, undefined, 'eq');
-    }
-};
+const Schema = require('../src/Schema');
 
-var normalProps = {
-    i: Schema.int,
-    n: Schema.num,
-    s: Schema.str
-}
+const simpleSchema = Schema({
+    i: Schema.integer,
+    s: Schema.string,
+    b: Schema.boolean,
+});
 
-describe('Schema', function(){
-    describe('#definition', function(){
-        it('should return a definition for each schema property', function(){
-            var s = Schema(normalProps);
-            assertEqual(_.prop('properties', s), normalProps);
-            assert.equal(Schema.definition.length, 1);
-            assertEqual(Schema.definition(s), {i: _.Int, n: _.Num, s: _.Str});
+describe('Schema', () => {
+    it('has predefined types attached to it', () => {
+        expect(Schema.any).toExist();
+        expect(Schema.array).toExist();
+        expect(Schema.binary).toExist();
+        expect(Schema.boolean).toExist();
+        expect(Schema.date).toExist();
+        expect(Schema.float).toExist();
+        expect(Schema.integer).toExist();
+        expect(Schema.object).toExist();
+        expect(Schema.string).toExist();
+    });
+
+    describe('#signature', () => {
+        it('returns the signature for the model', () => {
+            expect(Schema.signature(simpleSchema)).toEqual({
+                i: _.Integer,
+                s: _.String,
+                b: _.Boolean,
+            });
         });
     });
 
-    describe('#default', function(){
-        it('should return the defaults for each schema property', function(){
-            var s = Schema(normalProps);
-            assertEqual(Schema.default(s), {i: 0, n: 0, s: ''});
-
+    describe('#default', () => {
+        it('returns the defaults for each property', () => {
+            expect(Schema.default(simpleSchema)).toEqual({
+                i: 0,
+                s: '',
+                b: false,
+            });
         });
     });
 
-    describe('#unload', function(){
-        it('should convert values to jsonable format', function(){
-            var s = Schema(normalProps);
-            var m = {i:1,n:2,s:'3'};
-            assertEqual(Schema.unload(m, s), {i:1,n:2,s:'3'})
+    describe('#validate', () => {
+        it('returns an array of validation failures', () => {
+            expect(Schema.validate({i:0, s:'', b:false}, simpleSchema)).toEqual({});
+            expect(Schema.validate({i: 'zero', s:0, b:{}}, simpleSchema)).toEqual({
+                i: 'not the correct type.',
+                s: 'not the correct type.',
+                b: 'not the correct type.',
+            });
         });
     });
 
-    describe('#load', function(){
-        it('should convert values from json format', function(){
-            var s = Schema(normalProps);
-            var m = {i:1,n:2,s:'3'};
-            assertEqual(Schema.load(m, s), {i:1,n:2,s:'3'})
+    describe('#isValid', () => {
+        it('returns true if a model is valid, false otherwise', () => {
+            expect(Schema.isValid({i:0, s:'', b:false}, simpleSchema)).toEqual(true);
+            expect(Schema.isValid({i: 'zero', s:0, b:{}}, simpleSchema)).toEqual(false);
         });
     });
 
-    describe('#validate', function(){
-        it('should return an empty object if all properties are valid', function(){
-            var s = Schema(normalProps);
-            var m = {i:1,n:2,s:'3'};
-            var v = Schema.validate(m, s);
-
-            assertEqual(v, {});
-        });
-
-        it('should return an object of errors if any properties are not valid', function(){
-            var s = Schema(normalProps);
-            var m = {i:1.2,n:'n',s:null};
-            var v = Schema.validate(m, s);
-
-            assert.equal(_.keys(v).length, 3);
-            assertEqual(_.keys(v), ['i','n','s']);
-            assert(typeof v.i === 'string');
-            assert(typeof v.n === 'string');
-            assert(typeof v.s === 'string');
+    describe('#load', () => {
+        it('loads all the values using the propertis, using defaults where values are missing', () => {
+            expect(Schema.load({},simpleSchema)).toEqual({
+                i: 0,
+                s: '',
+                b: false,
+            });
+            expect(Schema.load({i:5}, simpleSchema)).toEqual({
+                i: 5,
+                s: '',
+                b: false,
+            });
+            expect(Schema.load({i:5,s:'bird',b:true}, simpleSchema)).toEqual({
+                i: 5,
+                s: 'bird',
+                b: true,
+            });
+            expect(Schema.load({i:'5',s:'bird',b:'true'}, simpleSchema)).toEqual({
+                i: 5,
+                s: 'bird',
+                b: true,
+            });
         });
     });
 
-    describe('#isValid', function(){
-        it('should return true if all properties are valid', function(){
-            var s = Schema(normalProps);
-            var m = {i:1,n:2,s:'3'};
-            var v = Schema.isValid(m, s);
-
-            assertEqual(v, true);
+    describe('#update', () => {
+        it('returns updated values using the properties', () => {
+            expect(Schema.update({}, simpleSchema)).toEqual({});
+            expect(Schema.update({i:5}, simpleSchema)).toEqual({i:5});
+            expect(Schema.update({i:'5'}, simpleSchema)).toEqual({i:5});
+            expect(Schema.update({i:'5'}, simpleSchema).i).toBe(5);
         });
+    });
 
-        it('should return an object of errors if any properties are not valid', function(){
-            var s = Schema(normalProps);
-            var m = {i:1.2,n:'n',s:null};
-            var v = Schema.isValid(m, s);
-
-            assertEqual(v, false);
+    describe('#unload', () => {
+        it('returns a storage ready representation of a model', () => {
+            expect(Schema.unload({i:5,s:'bird',b:true}, simpleSchema)).toEqual({i:5,s:'bird',b:true});
         });
     });
 });

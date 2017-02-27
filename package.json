@@ -23,11 +23,14 @@
   },
   "homepage": "https://github.com/mwardle/lambdash.model#readme",
   "dependencies": {
-    "lambdash": "^0.7.0-alpha.2",
+    "bytes": "^2.4.0",
+    "capture-stack-trace": "^1.0.0",
+    "lambdash": "^0.7.0-alpha.5",
     "lambdash.either": "^0.7.0-alpha.2",
     "lambdash.maybe": "^0.7.0-alpha.2"
   },
   "devDependencies": {
+    "expect": "^1.20.2",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0"
   }

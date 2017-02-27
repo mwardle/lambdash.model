@@ -1,14 +1,13 @@
 const _ = require('lambdash');
 
 const Schema = require('./Schema');
-const props = require('./properties');
+const props = require('./props');
 
 const createModel = (name, propDefs) => {
     const schema = Schema(propDefs);
-    const definition = Schema.definition(schema);
-    const defaults = Schema.default(schema);
+    const signature = Schema.signature(schema);
 
-    const Model = _.Type.product(name, definition);
+    const Model = _.Type.product(name, signature);
 
     Object.defineProperty(Model, 'schema', {
         configurable: false,
@@ -19,13 +18,25 @@ const createModel = (name, propDefs) => {
     Object.defineProperty(Model, 'default', {
         configurable: false,
         enumerable: true,
-        get: _.thunk(Model.fromObject, defaults),
+        get: _.compose(Model.fromObject, _.thunk(Schema.default, schema)),
     });
 
     Model.validate = Schema.validate(_, schema);
     Model.isValid = Schema.isValid(_, schema);
-    Model.load = _.pipe(Schema.load(_, schema), Model.fromObject);
+    Model.load = _.compose(Model.fromObject, Schema.load(_, schema));
+    Model.update = _.curry((values, model) => {
+        return Model.patch(Schema.update(values, schema), model);
+    });
+    Model.set = _.curry((key, value, model) => Model.update({[key]:value}, model));
     Model.unload = Schema.unload(_, schema);
+
+    Object.assign(Model.prototype, {
+        validate() { return Model.validate(this); },
+        isValid() { return Model.isValid(this); },
+        update(values) { return Model.update(values, this); },
+        set(key, value) { return Model.set(key, value, this); },
+        unload() { return Model.unload(this); },
+    });
 
     return Model;
 };
