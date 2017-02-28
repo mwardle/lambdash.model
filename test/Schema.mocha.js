@@ -10,6 +10,12 @@ const simpleSchema = Schema({
     b: Schema.boolean,
 });
 
+const secondSchema = Schema({
+    i: Schema.integer.optional(),
+    s: Schema.string,
+    b: Schema.boolean,
+});
+
 describe('Schema', () => {
     it('has predefined types attached to it', () => {
         expect(Schema.any).toExist();
@@ -30,6 +36,16 @@ describe('Schema', () => {
                 s: _.String,
                 b: _.Boolean,
             });
+        });
+
+        it('returns a nullable (union) type if a property is optional', () => {
+            let secondSig = Schema.signature(secondSchema);
+            expect(secondSig.i.name).toBe('_IntegerOrUnit');
+            expect(secondSig.i.member(null)).toBe(true);
+            expect(secondSig.i.member(8)).toBe(true);
+            expect(secondSig.i.member('8')).toBe(false);
+
+
         });
     });
 

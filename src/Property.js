@@ -77,7 +77,10 @@ const extendProperty = (parent) => (name, options = {}) => {
         return _.Function.member(_default) ? _default(property) : _default;
     };
 
-    _Property.signature = (property) => _.prop('_signature', property);
+    _Property.signature = (property) => {
+        const sig = _.prop('_signature', property);
+        return property._meta.required ? sig : _.Type.union([sig, _.Unit]);
+    };
 
     _Property.load = parent ? parent.load : _.curry((value, property) => {
         if (value == null) {
