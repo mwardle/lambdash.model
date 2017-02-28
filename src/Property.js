@@ -161,4 +161,42 @@ Property.isValid = _.curryN(2, _useModuleMethod('isValid'));
 Property.load = _.curryN(2, _useModuleMethod('load'));
 Property.unload = _.curryN(2, _useModuleMethod('unload'));
 
-Property.typed = _.typecached((T) => Property.extend(`${T.name}Property`, {_defaults: {_signature: T}}).default());
+Property.Typed = _.typecached((T) => {
+    const _Property = Property._extend(`${T.name}Property`, {defaults: {_signature: T}});
+    _Property.load = _.curry((value, property) => {
+        if (value == null) {
+            return value;
+        }
+
+        value = _.foldl((v, fn) => fn(v, property), value, property._preloaders);
+
+        if (_.Function.member(T.load)) {
+            value = T.load(value);
+        } if (_.Function.member(T.fromObject)) {
+            value = T.fromObject(value);
+        }
+
+        return value;
+    });
+
+    _Property.unload =  _.curry((value, property) => {
+        if (value == null) {
+            return value;
+        }
+
+        if (_.Function.member(T.unload)) {
+            value = T.unload(value);
+        } else if (_.Function.member(T.toObject)) {
+            value = T.toObject(value);
+        }
+
+        return value;
+    });
+
+    Object.assign(_Property.prototype, {
+        load: _.thisify(_Property.load),
+        unload: _.thisify(_Property.unload),
+    });
+
+    return _Property;
+});

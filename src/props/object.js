@@ -73,7 +73,7 @@ ObjectProperty.minKeys = ObjectProperty.withMeta('minKeys');
 ObjectProperty.maxKeys = ObjectProperty.withMeta('maxKeys');
 ObjectProperty.of = (ofProperty, property) => {
     if (!Property.member(ofProperty)) {
-        ofProperty = Property.typed(ofProperty);
+        ofProperty = Property.Typed(ofProperty).default();
     }
 
     return ObjectProperty.withMeta('of', ofProperty, property);

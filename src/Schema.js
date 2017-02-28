@@ -29,8 +29,8 @@ Schema.load = _.curry(function(data, schema) {
 
 Schema.update = _.curry(function(data, schema) {
     const props = _properties(schema);
-    return  _.mapAssoc(function(value, key) {
-        return _.Associative.exists(key, props)
+    return  _.Obj.mapAssoc(function(value, key) {
+        return _.Obj.exists(key, props)
             ? Property.load(value, props[key])
             : value;
     }, data);

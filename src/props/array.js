@@ -60,7 +60,7 @@ ArrayProperty.minLength = ArrayProperty.withMeta('minLength');
 ArrayProperty.maxLength = ArrayProperty.withMeta('maxLength');
 ArrayProperty.of = (ofProperty, property) => {
     if (!Property.member(ofProperty)) {
-        ofProperty = Property.typed(ofProperty);
+        ofProperty = Property.Typed(ofProperty).default();
     }
 
     return ArrayProperty.withMeta('of', ofProperty, property);
